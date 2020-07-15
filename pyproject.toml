@@ -15,9 +15,19 @@ pylint = "^2.5.2"
 pytest = "^5.4.2"
 responses = "^0.10.14"
 mypy = "^0.770"
-coverage = {extras = ["toml"], version = "^5.1"}
+coverage = {extras = ["toml"], version = "^5.2"}
 pytest-cov = "^2.9.0"
 pytest-mock = "^3.1.0"
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["xnat_portal"]
+
+[tool.coverage.report]
+show_missing = true
 
 [build-system]
 requires = ["poetry>=0.12"]

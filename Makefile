@@ -1,6 +1,6 @@
 POETRY_RUN := poetry run
 
-SOURCE_FILES := src/xnat_portal
+SOURCE_FILES := xnat_portal
 TEST_FILES := tests
 
 .PHONY: all
@@ -20,7 +20,7 @@ check:
 
 .PHONY: test
 test:
-	$(POETRY_RUN) pytest -vv --cov=$(basename $(SOURCE_FILES)) $(TEST_FILES) --cov-report html --cov-report term --capture=tee-sys
+	$(POETRY_RUN) pytest -vv --cov --cov-report html --cov-report term --capture=tee-sys
 
 .PHONY: format
 format:

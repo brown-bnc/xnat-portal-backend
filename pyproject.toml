@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "xnat-portal-backend"
+version = "0.1.0"
+description = "Wraper API for facilitating creation of projects and inbox folders"
+authors = ["Bradford N. Roarr <bradford_roarr@brown.edu>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flask = "^1.1.2"
+pyxnat = "^1.3"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+pylint = "^2.5.2"
+pytest = "^5.4.2"
+responses = "^0.10.14"
+mypy = "^0.770"
+coverage = {extras = ["toml"], version = "^5.1"}
+pytest-cov = "^2.9.0"
+pytest-mock = "^3.1.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

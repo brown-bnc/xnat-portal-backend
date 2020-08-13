@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+warn() {
+  echo "${@}" 1>&2
+}
+
+usage() {
+  cat <<EOF
+
+USAGE
+  keycloak-token [OPTIONS]
+
+OPTIONS
+  -c    Client id of the application to get a token for
+  -g    Grant type for the token
+  -h    Display this help message
+  -H    Hostname of Keycloak (default: https://datasci.brown.edu/keycloak)
+  -r    Realm to use for Keycloak authentication (default: ccv-shib)
+  -u    Username to use for Keycloak authentication
+
+EXAMPLES
+  keycloak-token -u broarr -c xnat-portal -g password
+
+EOF
+}
+
+main() {
+  local client_id=
+  local password=
+  local username=
+  local grant_type="password"
+  local hostname="https://datasci.brown.edu/keycloak"
+  local realm="ccv-shib"
+
+  while getopts ":c:g:hH:r:u:" opt; do
+    case "${opt}" in
+      c)
+        client_id="${OPTARG}" 
+        ;;
+      g)
+        grant_type="${OPTARG}"
+        ;;
+      h)
+        usage; exit 0
+        ;;
+      H)
+        hostname="${OPTARG}"
+        ;;
+      r)
+        realm="${OPTARG}"
+        ;;
+      u)
+        username="${OPTARG}"
+        ;;
+      \?)
+        warn "Invalid option: -${OPTARG}"
+        exit 1
+        ;;
+      :)
+        warn "Invalid option: -${OPTARG} requires an argument"
+        exit 1
+        ;;
+    esac
+  done
+
+  echo -n "password: "
+  read -sr password
+  echo
+
+  curl -XPOST \
+    -d "client_id=${client_id}" \
+    -d "username=${username}" \
+    -d "password=${password}" \
+    -d "grant_type=${grant_type}" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    "${hostname}/auth/realms/${realm}/protocol/openid-connect/token"
+  echo
+}
+
+main "$@"

@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var request = require('request')
 
 // Load up the environment variables.
 require('dotenv').config()
@@ -11,8 +12,7 @@ router.get('/:user', function(req, res, next) {
   const user = req.params.user;
 
   // Login with admin credentials
-  var request = require('request'),
-  username = process.env.USERNAME,
+  var username = process.env.USERNAME,
   password = process.env.PASSWORD,
   url = "https://" + username + ":" + password + "@bnc.brown.edu/xnat-dev";
 
@@ -23,8 +23,9 @@ router.get('/:user', function(req, res, next) {
     },
     function (error, response, body) {
       var token = JSON.parse(body)
-      var request = require('request'),
-      username = token.alias,
+      
+      // Login with user credentials
+      var username = token.alias,
       password = token.secret,
       url = "https://" + username + ":" + password + "@bnc.brown.edu/xnat-dev";
 

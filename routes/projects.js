@@ -1,47 +1,85 @@
-var express = require('express');
-var router = express.Router();
-var request = require('request')
-
-// Load up the environment variables.
-require('dotenv').config()
+var express = require('express')
+var router = express.Router()
+var fetch = require('node-fetch')
+var { Headers } = require('node-fetch')
+var base64 = require('base-64')
 
 /* GET projects listing. */
-router.get('/:user', function(req, res, next) {
-
+router.get('/:user', async function (req, res, next) {
   // User info from keycloak
-  const user = req.params.user;
+  const user = req.params.user
 
   // Login with admin credentials
-  var username = process.env.USERNAME,
-  password = process.env.PASSWORD,
-  url = "https://" + username + ":" + password + "@bnc.brown.edu/xnat-dev";
+  const adminUsername = process.env.USERNAME
+  const adminPassword = process.env.PASSWORD
 
-  // Get user accesss token for the specific username from keycloak using XNAT User Alias Token API
-  request(
-    {
-        url : url + '/data/services/tokens/issue/user/' + user
-    },
-    function (error, response, body) {
-      var token = JSON.parse(body)
-      
-      // Login with user credentials
-      var username = token.alias,
-      password = token.secret,
-      url = "https://" + username + ":" + password + "@bnc.brown.edu/xnat-dev";
+  // Start session for admin
+  const ADMINJSESSIONID = await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
+    headers: new Headers({
+      Authorization: `Basic ${base64.encode(`${adminUsername}:${adminPassword}`)}`
+    })
+  }).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+    return res.text()
+  })
 
-      // Get the projects for that specific user using XNAT Project API
-      request(
-        {
-            url : url + '/data/projects'
-        },
-        function (error, response, body) {
-          res.send(body)
-        }
-      );
+  // Get the alias and secret for user
+  const tokenResponse = await fetch(`${process.env.BASE_XNAT_URL}/data/services/tokens/issue/user/${user}`, {
+    headers: new Headers({
+      cookie: `JSESSIONID=${ADMINJSESSIONID}`
+    })
+  }).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+    return res.json()
+  })
+
+  const alias = tokenResponse.alias
+  const secret = tokenResponse.secret
+
+  // Start the session for user
+  const JSESSIONID = await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
+    headers: new Headers({
+      Authorization: `Basic ${base64.encode(`${alias}:${secret}`)}`
+    })
+  }).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+    return res.text()
+  })
+
+  // Get the user projects
+  const projects = await fetch(`${process.env.BASE_XNAT_URL}/data/projects/`
+    , {
+      headers: new Headers({
+        cookie: `JSESSIONID=${JSESSIONID}`
+      })
     }
-  );
+  ).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+    return res.json()
+  })
 
-  
-});
+  // Delete session for user
+  await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
+    method: 'DELETE',
+    headers: new Headers({
+      cookie: `JSESSIONID=${JSESSIONID}`
+    })
+  }).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+  })
 
-module.exports = router;
+  // Delete session for admin
+  await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
+    method: 'DELETE',
+    headers: new Headers({
+      cookie: `JSESSIONID=${ADMINJSESSIONID}`
+    })
+  }).then(function (res) {
+    if (!res.ok) throw new Error(res.statusText)
+  })
+
+  // send the list of projects to response 
+  res.send(projects)
+})
+
+module.exports = router

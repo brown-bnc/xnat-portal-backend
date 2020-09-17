@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "commit": "git-cz",
-    "start": "node ./bin/www",
+    "start": "standard && node app.js",
     "dev": "DEBUG=\"xnat-portal-backend:*\" npm start"
   },
   "config": {
@@ -13,6 +13,7 @@
     }
   },
   "dependencies": {
+    "base-64": "^0.1.0",
     "cookie-parser": "~1.4.4",
     "cz-conventional-changelog": "^3.3.0",
     "debug": "~2.6.9",
@@ -22,6 +23,11 @@
     "git-cz": "^4.7.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "request": "^2.88.2"
+    "node-fetch": "^2.6.1",
+    "request": "^2.88.2",
+    "util": "^0.12.3"
+  },
+  "devDependencies": {
+    "standard": "^14.3.4"
   }
 }

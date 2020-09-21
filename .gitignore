@@ -7,3 +7,4 @@
 .vscode/
 htmlcov/
 node_modules/
+test.js

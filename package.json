@@ -4,13 +4,20 @@
   "private": true,
   "scripts": {
     "commit": "git-cz",
-    "start": "standard && node app.js",
-    "dev": "DEBUG=\"xnat-portal-backend:*\" npm start"
+    "start": "standard --fix && node app.js",
+    "dev": "DEBUG=\"xnat-portal-backend:*\" npm start",
+    "test": "jest --detectOpenHandles"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "dependencies": {
     "base-64": "^0.1.0",
@@ -28,6 +35,9 @@
     "util": "^0.12.3"
   },
   "devDependencies": {
-    "standard": "^14.3.4"
+    "jest": "^26.4.2",
+    "jest-fetch-mock": "^3.0.3",
+    "standard": "^14.3.4",
+    "supertest": "^4.0.2"
   }
 }

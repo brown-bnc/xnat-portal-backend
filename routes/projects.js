@@ -1,8 +1,9 @@
 var express = require('express')
 var router = express.Router()
-var fetch = require('node-fetch')
-var { Headers } = require('node-fetch')
-var base64 = require('base-64')
+var getProjects = require('../xnat-apis/getProjects')
+const startSession = require('../xnat-apis/startSession')
+const deleteSession = require('../xnat-apis/deleteSession')
+const userAliasToken = require('../xnat-apis/userAliasToken')
 
 /* GET projects listing. */
 router.get('/:user', async function (req, res, next) {
@@ -14,71 +15,27 @@ router.get('/:user', async function (req, res, next) {
   const adminPassword = process.env.PASSWORD
 
   // Start session for admin
-  const ADMINJSESSIONID = await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
-    headers: new Headers({
-      Authorization: `Basic ${base64.encode(`${adminUsername}:${adminPassword}`)}`
-    })
-  }).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-    return res.text()
-  })
+  const ADMINJSESSIONID = await startSession(adminUsername, adminPassword)
 
   // Get the alias and secret for user
-  const tokenResponse = await fetch(`${process.env.BASE_XNAT_URL}/data/services/tokens/issue/user/${user}`, {
-    headers: new Headers({
-      cookie: `JSESSIONID=${ADMINJSESSIONID}`
-    })
-  }).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-    return res.json()
-  })
+  const tokenResponse = await userAliasToken(ADMINJSESSIONID, user)
 
   const alias = tokenResponse.alias
   const secret = tokenResponse.secret
 
   // Start the session for user
-  const JSESSIONID = await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
-    headers: new Headers({
-      Authorization: `Basic ${base64.encode(`${alias}:${secret}`)}`
-    })
-  }).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-    return res.text()
-  })
+  const JSESSIONID = await startSession(alias, secret)
 
   // Get the user projects
-  const projects = await fetch(`${process.env.BASE_XNAT_URL}/data/projects/`
-    , {
-      headers: new Headers({
-        cookie: `JSESSIONID=${JSESSIONID}`
-      })
-    }
-  ).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-    return res.json()
-  })
+  const projects = await getProjects(JSESSIONID)
 
   // Delete session for user
-  await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
-    method: 'DELETE',
-    headers: new Headers({
-      cookie: `JSESSIONID=${JSESSIONID}`
-    })
-  }).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-  })
+  deleteSession(JSESSIONID)
 
   // Delete session for admin
-  await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {
-    method: 'DELETE',
-    headers: new Headers({
-      cookie: `JSESSIONID=${ADMINJSESSIONID}`
-    })
-  }).then(function (res) {
-    if (!res.ok) throw new Error(res.statusText)
-  })
+  deleteSession(ADMINJSESSIONID)
 
-  // send the list of projects to response 
+  // send the list of projects to response
   res.send(projects)
 })
 

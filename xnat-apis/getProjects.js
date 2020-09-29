@@ -1,9 +1,9 @@
-var fetch = require('node-fetch')
-var { Headers } = require('node-fetch')
+const fetch = require('node-fetch')
+const { Headers } = require('node-fetch')
 
 const getProjects = async (JSESSIONID) => {
-  const res = await fetch(`${process.env.BASE_XNAT_URL}/data/projects/`
-    , {
+  const res = await fetch(`${process.env.BASE_XNAT_URL}/data/projects/`,
+    {
       headers: new Headers({
         cookie: `JSESSIONID=${JSESSIONID}`
       })

@@ -1,5 +1,5 @@
-var fetch = require('node-fetch')
-var { Headers } = require('node-fetch')
+const fetch = require('node-fetch')
+const { Headers } = require('node-fetch')
 
 const userAliasToken = async (JSESSIONID, user) => {
   const res = await fetch(`${process.env.BASE_XNAT_URL}/data/services/tokens/issue/user/${user}`, {

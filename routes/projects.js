@@ -1,6 +1,6 @@
-var express = require('express')
-var router = express.Router()
-var getProjects = require('../xnat-apis/getProjects')
+const express = require('express')
+const router = express.Router()
+const getProjects = require('../xnat-apis/getProjects')
 const startSession = require('../xnat-apis/startSession')
 const deleteSession = require('../xnat-apis/deleteSession')
 const userAliasToken = require('../xnat-apis/userAliasToken')
@@ -30,10 +30,10 @@ router.get('/:user', async function (req, res, next) {
   const projects = await getProjects(JSESSIONID)
 
   // Delete session for user
-  deleteSession(JSESSIONID)
+  await deleteSession(JSESSIONID)
 
   // Delete session for admin
-  deleteSession(ADMINJSESSIONID)
+  await deleteSession(ADMINJSESSIONID)
 
   // send the list of projects to response
   res.send(projects)

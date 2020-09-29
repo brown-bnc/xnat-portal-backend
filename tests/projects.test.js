@@ -27,7 +27,7 @@ describe('Test Endpoint', () => {
     fetch.mockResponse(JSON.stringify(projects))
 
     // use agent instead of manually calling `request(app)` each time
-    const res = await agent.get('/projects/rdhar2')
+    const res = await agent.get('/projects/xyz')
     expect(JSON.parse(res.text)).toEqual(projects)
   })
 })

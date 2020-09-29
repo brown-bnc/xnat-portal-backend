@@ -13,8 +13,4 @@ describe('get-projects', () => {
 
     expect(current).toEqual(projects)
   })
-
-  test('fetch', () => {
-    expect(fetch).toHaveBeenCalled()
-  })
 })

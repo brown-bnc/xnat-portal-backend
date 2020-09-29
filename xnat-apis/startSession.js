@@ -1,6 +1,6 @@
-var fetch = require('node-fetch')
-var base64 = require('base-64')
-var { Headers } = require('node-fetch')
+const fetch = require('node-fetch')
+const base64 = require('base-64')
+const { Headers } = require('node-fetch')
 
 const startSession = async (username, password) => {
   const res = await fetch(`${process.env.BASE_XNAT_URL}/data/JSESSION/`, {

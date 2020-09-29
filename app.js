@@ -1,6 +1,5 @@
 const createError = require('http-errors')
 const express = require('express')
-// const port = 3000
 
 // Load up the environment variables.
 require('dotenv').config()
@@ -19,7 +18,7 @@ app.use(function (_req, _res, next) {
 })
 
 // error handler
-app.use(function (err, req, res, _next) {
+app.use(function (err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
@@ -28,8 +27,5 @@ app.use(function (err, req, res, _next) {
   res.status(err.status || 500)
   res.json({ error: err })
 })
-// app.listen(port, () => {
-//   console.log(`app listening at http://localhost:${port}`)
-// })
 
 module.exports = app

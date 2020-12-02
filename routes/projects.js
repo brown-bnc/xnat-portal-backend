@@ -17,7 +17,7 @@ const secret = fs.readFileSync('./public.pem');
 /* GET projects listing. */
 router.get('/',
 jwt({ secret: secret, algorithms: ['RS256'] }),
-async function (req, res) {
+async function (req, res, next) {
   // User info from keycloak
   const user = req.user.brownShortID
 
@@ -25,8 +25,15 @@ async function (req, res) {
   const adminUsername = process.env.USERNAME
   const adminPassword = process.env.PASSWORD
 
-  // Start session for admin
-  const ADMINJSESSIONID = await startSession(adminUsername, adminPassword)
+  let ADMINJSESSIONID
+  try{
+    // Start session for admin
+    ADMINJSESSIONID = await startSession(adminUsername, adminPassword)
+  }
+  catch(err){
+    console.log(err.toString())
+    next(err.toString())
+  }
 
   // Get the alias and secret for user
   const tokenResponse = await userAliasToken(ADMINJSESSIONID, user)

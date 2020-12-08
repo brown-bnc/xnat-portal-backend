@@ -1,9 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('express-jwt')
+const fs = require('fs')
 const clientCredentialsGrant = require('../globus-apis/clientCredentialsGrant')
 const getIdentity = require('../globus-apis/getIdentity')
 const createAccessRule = require('../globus-apis/createAccessRule')
+
+const secret = fs.readFileSync('./public.pem');
 
 /* POST mdir */
 router.post('/',

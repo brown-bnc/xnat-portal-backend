@@ -1,24 +1,39 @@
 const express = require('express')
 const router = express.Router()
-const client_credentials_grant = require('../globus-apis/client_credentials_grant')
-const make_directory = require('../globus-apis/make_directory')
+const clientCredentialsGrant = require('../globus-apis/clientCredentialsGrant')
+const makeDirectory = require('../globus-apis/makeDirectory')
 
 /* POST mdir */
-router.get('/',
+router.post('/',
 async function (req, res, next) {
+
+  // getting directory name.
+  const path = req.body.path
+
   // client credentials grant
-  let access_token;
-  await client_credentials_grant(process.env.CLIENT_ID, process.env.CLIENT_SECRET).then(
+  let access_token
+  await clientCredentialsGrant(process.env.CLIENT_ID, process.env.CLIENT_SECRET).then(
     (response) => {
-      access_token = JSON.parse(response).access_token
+      access_token = JSON.parse(response)
     }
   )
-  console.log(access_token+"\n"+"\n"+"\n")
   
+  const check_for_transfer_api_token = () => {
+    if(access_token.scope.indexOf("urn:globus:auth:scope:transfer.api.globus.org:all")<0)
+      return access_token.other_tokens.map((item)=> {
+      if(item.scope==="urn:globus:auth:scope:transfer.api.globus.org:all")
+      return item.access_token
+    })
+    else
+      return access_token.access_token
+  }
+
+  const transferAPIAccessToken = check_for_transfer_api_token()
+  let response;
   // make directory globus transfer API
-  await make_directory(access_token, process.env.ENDPOINT_ID).then(
-    (response) => {
-      console.log(JSON.parse(response))
+  await makeDirectory(transferAPIAccessToken, process.env.ENDPOINT_ID, path).then(
+    (res) => {
+      response = res
     }
   )
 

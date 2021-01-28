@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const clientCredentialsGrant = require("../globus-apis/clientCredentialsGrant");
-const makeDirectory = require("../globus-apis/makeDirectory");
+const listDirectories = require("../globus-apis/listDirectories");
 
-/* POST mkdir */
+/* POST ls */
 router.post("/", async function (req, res, next) {
   // getting directory name.
   const path = req.body.path;
@@ -36,7 +36,7 @@ router.post("/", async function (req, res, next) {
     const transferAPIAccessToken = check_for_transfer_api_token();
     let response;
     // make directory globus transfer API
-    await makeDirectory(transferAPIAccessToken, process.env.ENDPOINT_ID, path)
+    await listDirectories(transferAPIAccessToken, process.env.ENDPOINT_ID, path)
       .then((res) => {
         response = res;
       })
@@ -45,7 +45,7 @@ router.post("/", async function (req, res, next) {
         next(error);
       });
 
-    if (response) {
+    if(response){
       // send the response
       res.send(response);
     }

@@ -10,7 +10,7 @@ describe('Test Endpoint', () => {
   jest.setTimeout(30000)
 
   beforeEach((done) => {
-    server = app.listen(4000, (err) => {
+    server = app.listen(4002, (err) => {
       if (err) return done(err)
 
       agent = request.agent(server) // since the application is already listening, it should use the allocated port

@@ -38,19 +38,26 @@ router.get(
       // Get the alias and secret for user
       let tokenResponse;
       try {
+        // save tokenResponse containing alias and secret for user
         tokenResponse = await userAliasToken(ADMINJSESSIONID, user);
-      } catch (err) {
+      } 
+      // error handling for user alias token api
+      catch (err) {
         let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
         next(error);
       }
       if (tokenResponse) {
+        // get alias and secret from tokenResponse 
         const alias = tokenResponse.alias;
         const secret = tokenResponse.secret;
         let JSESSIONID;
         try {
-          // Start the session for user
+          // Start the session for user 
+          // Jsession id to get the projects for the user
           JSESSIONID = await startSession(alias, secret);
-        } catch (err) {
+        } 
+        // error handling for the start session api call
+        catch (err) {
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);
         }

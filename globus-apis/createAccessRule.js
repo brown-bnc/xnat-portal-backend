@@ -4,12 +4,12 @@ const { Headers } = require('node-fetch')
 
 const createAccessRule = async (access_token, endpoint_xid, principal, path, permissions, notify_email) => {
   const body ={
-    "DATA_TYPE": "access",
-    "principal_type": "identity",
-    "principal": principal,
-    "path": path,
-    "permissions": permissions,
-    "notify_email": notify_email
+    DATA_TYPE: "access",
+    principal_type: "identity",
+    principal: principal,
+    path: path,
+    permissions: permissions,
+    notify_email: notify_email
 }
   const res = await fetch(new URL(`${process.env.TRANSFER_API_URL}/endpoint/${endpoint_xid}/access`), {
     method: 'POST',
@@ -19,9 +19,8 @@ const createAccessRule = async (access_token, endpoint_xid, principal, path, per
       Authorization: `Bearer ${access_token}`
     })
   })
-  if (!res.ok) {
-    return await res.statusText
-  }
-  else return await res.text()
+  if (res.statusText !== "Created" && res.statusText !== "Conflict") {
+    throw { message: res.statusText };
+  } else return await res.text();
 }
 module.exports = createAccessRule

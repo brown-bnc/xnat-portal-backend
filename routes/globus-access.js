@@ -9,7 +9,7 @@ const utils = require("../utils");
 // read secret from keycloak
 const secret = fs.readFileSync("./public.pem");
 
-/* POST mdir */
+/* POST create Globus access rule */
 router.post(
   "/",
   // using json web token to decrypt user brown id sent from keycloak
@@ -21,20 +21,38 @@ router.post(
     // getting path to give access to from request body
     const path = req.body.path;
 
-    // getting permissions to set from body
+    // getting permissions to set for the path from request body
     const permission = req.body.permission;
 
-    // email
+    // email address of the user
     const username = user + "@brown.edu";
 
-    // client credentials grant login with the cliend
-    // id and secret in the environment variables
+    // mapping and returning id from the identity resource type document
+    const getPrincipal = () => {
+      return identities.map((item) => {
+        if (item.username === username) {
+          return item.id;
+        }
+      })[0];
+    };
+
+    // mapping and returning notify email from the identity resource type document
+    const getNotifyEmail = () => {
+      return identities.map((item) => {
+        if (item.username === username) {
+          return item.email;
+        }
+      })[0];
+    };
+
+    // client credentials grant login with the client id and secret in the environment variables
     let access_token;
     await clientCredentialsGrant(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET
     )
       .then((response) => {
+        // access token returned from the client credentials oauth grant of Globus
         access_token = JSON.parse(response);
       })
       // error handling
@@ -53,32 +71,19 @@ router.post(
       const authAPIAccessToken = utils.check_for_auth_api_token(access_token);
 
       let identities;
-      // get identity from the username
+      // get identity resource type document from the user email
       await getIdentity(authAPIAccessToken, username).then((res) => {
         identities = JSON.parse(res).identities;
       });
 
-      const getPrincipal = () => {
-        return identities.map((item) => {
-          if (item.username === username) {
-            return item.id;
-          }
-        })[0];
-      };
-
-      const getNotifyEmail = () => {
-        return identities.map((item) => {
-          if (item.username === username) {
-            return item.email;
-          }
-        })[0];
-      };
       if (identities) {
+
+        // get the principal and notify email from the identity document to be used in the create access rule api call
         const principal = getPrincipal();
         const notify_email = getNotifyEmail();
 
         let response;
-        // create access rule transfer api
+        // create access rule transfer api call
         await createAccessRule(
           transferAPIAccessToken,
           process.env.ENDPOINT_ID,

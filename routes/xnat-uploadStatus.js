@@ -52,11 +52,10 @@ router.get(
         const alias = tokenResponse.alias;
         const secret = tokenResponse.secret;
 
-        let createResponse;
+        let statusResponse;
         try {
-          // Get the user projects
-          // Create projects
-          createResponse = await uploadStatus(alias, secret, upload_id);
+          // Get upload status
+          statusResponse = await uploadStatus(alias, secret, upload_id);
         } catch (err) {
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);
@@ -69,9 +68,9 @@ router.get(
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);
         }
-        if (createResponse) {
-          // send the list of projects to response
-          res.send(createResponse);
+        if (statusResponse) {
+          // send the status of the upload
+          res.send(statusResponse);
         }
       }
     }

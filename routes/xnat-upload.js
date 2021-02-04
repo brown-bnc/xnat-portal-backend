@@ -6,14 +6,17 @@ const userAliasToken = require("../xnat-apis/userAliasToken");
 const jwt = require("express-jwt");
 const fs = require("fs");
 const bodyParser = require("body-parser");
-const importAPI = require("../xnat-apis/importAPI");
+const uploadAPI = require("../xnat-apis/uploadAPI");
 
 const jsonparser = bodyParser.json();
 
+// read secret from keycloak
 const secret = fs.readFileSync("./public.pem");
 
+/* POST XNAT Upload */
 router.post(
   "/",
+  // using json web token to decrypt user brown id sent from keycloak
   jwt({ secret: secret, algorithms: ["RS256"] }),
   jsonparser,
   async function (req, res, next) {
@@ -35,11 +38,11 @@ router.post(
       // Start session for admin
       ADMINJSESSIONID = await startSession(adminUsername, adminPassword);
     } catch (err) {
+      // error handling
       let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
       next(error);
     }
     if (ADMINJSESSIONID) {
-      // Get the alias and secret for user
       let tokenResponse;
       try {
         // save tokenResponse containing alias and secret for user
@@ -54,12 +57,12 @@ router.post(
         const alias = tokenResponse.alias;
         const secret = tokenResponse.secret;
 
-        let createResponse;
+        let uploadResponse;
         try {
-          // Get the user projects
-          // Create projects
-          createResponse = await importAPI(alias, secret, project, subject_id);
+          // start the upload to XNAT using the user alias and secret
+          uploadResponse = await uploadAPI(alias, secret, project, subject_id);
         } catch (err) {
+          // error handling
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);
         }
@@ -68,12 +71,13 @@ router.post(
           // Delete session for admin
           await deleteSession(ADMINJSESSIONID);
         } catch (err) {
+          // error handling
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);
         }
-        if (createResponse) {
+        if (uploadResponse) {
           // send the list of projects to response
-          res.send(createResponse);
+          res.send(uploadResponse);
         }
       }
     }

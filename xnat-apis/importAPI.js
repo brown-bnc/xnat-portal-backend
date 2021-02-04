@@ -3,7 +3,7 @@ const base64 = require("base-64");
 const { Headers } = require("node-fetch");
 const { URLSearchParams } = require("url");
 
-const importAPI = async (alias, secret, PROJECT_ID, SUBJECT_ID) => {
+const uploadAPI = async (alias, secret, PROJECT_ID, SUBJECT_ID) => {
   var url = new URL(`${process.env.BASE_XNAT_URL}/data/services/import`);
 
   var params = {
@@ -26,4 +26,4 @@ const importAPI = async (alias, secret, PROJECT_ID, SUBJECT_ID) => {
   } else return await res.text();
 };
 
-module.exports = importAPI;
+module.exports = uploadAPI;

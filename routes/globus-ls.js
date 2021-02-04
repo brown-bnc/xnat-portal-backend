@@ -4,13 +4,12 @@ const clientCredentialsGrant = require("../globus-apis/clientCredentialsGrant");
 const listDirectories = require("../globus-apis/listDirectories");
 const utils = require("../utils");
 
-/* POST ls */
+/* POST list directories in Globus path */
 router.post("/", async function (req, res, next) {
   // getting path from request body
   const path = req.body.path;
 
-  // client credentials grant login with the cliend
-  // id and secret in the environment variables
+  // client credentials grant login with the client id and secret in the environment variables
   let access_token;
   await clientCredentialsGrant(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
     .then((response) => {

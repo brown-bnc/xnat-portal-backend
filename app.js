@@ -13,7 +13,7 @@ const projectsRouter = require('./routes/xnat-projects')
 const globusMdirRouter = require('./routes/globus-mkdir')
 const globusLsRouter = require('./routes/globus-ls')
 const globusAccessRouter = require('./routes/globus-access')
-const importRouter = require('./routes/xnat-import')
+const uploadRouter = require('./routes/xnat-upload')
 const uploadStatusRouter = require('./routes/xnat-uploadStatus')
 
 const app = express()
@@ -26,7 +26,7 @@ app.use('/projects', projectsRouter)
 app.use('/mkdir', globusMdirRouter)
 app.use('/ls', globusLsRouter)
 app.use('/access', globusAccessRouter)
-app.use('/import', importRouter)
+app.use('/upload', uploadRouter)
 app.use('/status', uploadStatusRouter)
 
 // catch 404 and forward to error handler

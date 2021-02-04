@@ -6,13 +6,14 @@ const userAliasToken = require("../xnat-apis/userAliasToken");
 const jwt = require("express-jwt");
 const fs = require("fs");
 const bodyParser = require("body-parser");
-const importAPI = require("../xnat-apis/importAPI");
+const js2xmlparser = require("js2xmlparser");
+const uploadStatus = require("../xnat-apis/uploadStatus");
 
 const jsonparser = bodyParser.json();
 
 const secret = fs.readFileSync("./public.pem");
 
-router.post(
+router.get(
   "/",
   jwt({ secret: secret, algorithms: ["RS256"] }),
   jsonparser,
@@ -20,11 +21,8 @@ router.post(
     // User info from keycloak
     const user = req.user.brownShortID;
 
-    // getting project name from body
-    const project = req.body.project;
-
-    // getting subject id name from body
-    const subject_id = req.body.subject_id;
+    // getting upload id(path) from body
+    const upload_id = req.body.upload_id;
 
     // Login with admin credentials
     const adminUsername = process.env.USERNAME;
@@ -58,7 +56,7 @@ router.post(
         try {
           // Get the user projects
           // Create projects
-          createResponse = await importAPI(alias, secret, project, subject_id);
+          createResponse = await uploadStatus(alias, secret, upload_id);
         } catch (err) {
           let error = JSON.parse(JSON.stringify(err).split("\n")[0]);
           next(error);

@@ -1,39 +1,31 @@
-const createError = require('http-errors');
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+const createError = require('http-errors')
+const express = require('express')
 
 // Load up the environment variables.
 require('dotenv').config()
 
-const indexRouter = require('./routes/index');
-const projectsRouter = require('./routes/projects');
+const indexRouter = require('./routes/index')
+const projectsRouter = require('./routes/projects')
 
-const app = express();
+const app = express()
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(jwt({ secret: process.env.JWT_SECRET }))
-app.use(cookieParser());
-
-app.use('/', indexRouter);
-app.use('/projects', projectsRouter);
+app.use('/', indexRouter)
+app.use('/projects', projectsRouter)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+app.use(function (_req, _res, next) {
+  next(createError(404))
+})
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res) {
   // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.message = err.message
+  res.locals.error = req.app.get('env') === 'development' ? err : {}
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+  res.status(err.status || 500)
+  res.json({ error: err })
+})
 
-module.exports = app;
+module.exports = app
